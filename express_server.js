@@ -26,9 +26,16 @@ app.get("/hello", (req, res) => {
 //add a route for /urls
 app.get("/urls", (req, res) => {
   const templateVars = {urls: urlDatabase};
-  //pass the URL data to out template url_index.ejs
+  //pass the URL data to our template url_index.ejs
   res.render("urls_index", templateVars); 
 });
+
+//add a route for /urls/:shortURL which will be used to render the tempalate urls_show.ejs
+app.get("/urls/:shortURL", (req, res) => {
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]/* What goes here? */ };
+  res.render("urls_show", templateVars);
+})
+
 
 
 app.listen(PORT, () => {
