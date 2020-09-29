@@ -11,8 +11,14 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+//add another endpoint
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
+});
+
+//send HTML code in the response
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 app.listen(PORT, () => {
