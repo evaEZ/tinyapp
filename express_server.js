@@ -4,10 +4,24 @@ const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs") // set ejs as the view engine
 
+//get the body-parser library
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({extended: true}));
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+//function to generate a random shortURL
+function generateRandomString() {
+  const alphanum = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result ="";
+  for(let i = 0; i < 6; i++){
+    result += alphanum[Math.floor(Math.random()* 61)];
+  }
+  return result;
+}
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -30,6 +44,12 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars); 
 });
 
+//add a GET route to show the form, render the urls_new.ejs template
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
+
 //add a route for /urls/:shortURL which will be used to render the tempalate urls_show.ejs
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]/* What goes here? */ };
@@ -37,6 +57,12 @@ app.get("/urls/:shortURL", (req, res) => {
 })
 
 
+//add a post
+app.post("/urls", (req, res) => {
+  console.log(req.body);  // Log the POST request body to the console
+  res.send(generateRandomString());
+  //res.send("Ok");         // Respond with 'Ok' (we will replace this)
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
