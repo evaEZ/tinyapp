@@ -55,7 +55,6 @@ app.get("/urls/new", (req, res) => {
 //add a route for /urls/:shortURL which will be used to render the tempalate urls_show.ejs
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]/* What goes here? */ };
-  console.log(req.params.shortURL);
   res.render("urls_show", templateVars);
 })
 
@@ -63,13 +62,20 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
   //res.send();
-   res.statusCode = 200;
+  
    const shortURL = generateRandomString();
    urlDatabase[shortURL] = req.body.longURL;
    //console.log(urlDatabase);
-   res.redirect(`/urls/${shortURL}`);;         // Respond with 'Ok' (we will replace this)
+   res.statusCode = 200;
+   res.redirect(`/urls/${shortURL}`);
+   //res.send('OK');  // Respond with 'Ok' (we will replace this)
 });
 
+//redirect short URLs
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
