@@ -15,11 +15,14 @@ const urlDatabase = {
 
 //function to generate a random shortURL
 function generateRandomString() {
+/** 
   const alphanum = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result ="";
   for(let i = 0; i < 6; i++){
     result += alphanum[Math.floor(Math.random()* 61)];
   }
+*/
+  const result = Math.random().toString(36).substring(2,8);
   return result;
 }
 
@@ -49,20 +52,24 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-
 //add a route for /urls/:shortURL which will be used to render the tempalate urls_show.ejs
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]/* What goes here? */ };
+  console.log(req.params.shortURL);
   res.render("urls_show", templateVars);
 })
-
 
 //add a post
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
-  res.send(generateRandomString());
-  //res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  //res.send();
+   res.statusCode = 200;
+   const shortURL = generateRandomString();
+   urlDatabase[shortURL] = req.body.longURL;
+   //console.log(urlDatabase);
+   res.redirect(`/urls/${shortURL}`);;         // Respond with 'Ok' (we will replace this)
 });
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
