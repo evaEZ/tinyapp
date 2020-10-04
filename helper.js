@@ -23,12 +23,21 @@ function generateRandomString() {
   
   const validateUser = function(bcrypt, usersDb, email, password) {
     for (let key in usersDb){
-      console.log(usersDb[key]["password"]);
-      //console.log(usersDb.key);
-      //const result = bcrypt.compareSync(usersDb[key]["password"], password);
-      //if (usersDb[key]["email"] === email && result) {
-      if (usersDb[key]["email"] === email && usersDb[key]["password"] === password) {  
-        return key;
+      //console.log(usersDb[key]["password"]);
+      //console.log("password: " + password);
+      const currentUser = usersDb[key]
+      console.log(currentUser["password"]);
+      console.log(bcrypt.hashSync(password, 10));
+      const result = bcrypt.compareSync(password,currentUser["password"]);
+      console.log(result);
+      
+      //if (usersDb[key]["email"] === email && usersDb[key]["password"] === password) { 
+      if (currentUser["email"] === email){
+        console.log("email matching");
+        if (result) {
+          console.log("password matching");
+          return key;
+        }
       }
     }
     return null;
