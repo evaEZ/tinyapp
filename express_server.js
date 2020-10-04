@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const {generateRandomString, findUserByEmail, validateUser, getUserDB} = require('./helper');
 const app = express();
+const salt = bcrypt.genSaltSync(10);
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs") // set ejs as the view engine
@@ -33,14 +34,14 @@ const users = {
   "a5fjdk": {
     id: "a5fjdk", 
     email: "ezfl@example.com", 
-    password: "purple-monkey-dinosaur"
-    //password: bcrypt.hashSync("purple-monkey-dinosaur",10)
+    //password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync("purple-monkey-dinosaur", salt)
   },
  "skd2do": {
     id: "skd2do", 
     email: "flez@example.com", 
-    password: "dishwasher-funk"
-    //password: bcrypt.hashSync("dishwasher-funk",10)
+    //password: "dishwasher-funk"
+    password: bcrypt.hashSync("dishwasher-funk", salt)
   }
 }
 /** 
@@ -168,7 +169,7 @@ app.get("/urls/:shortURL", (req, res) => {
     const username = users[user]["email"];
     const templateVars = { 
       shortURL: req.params.shortURL, 
-      longURL: urlDatabase[req.params.shortURL]["longURL"]/* What goes here? */,
+      longURL: urlDatabase[req.params.shortURL]["longURL"],
       username
     };
     res.render("urls_show", templateVars);
@@ -228,8 +229,6 @@ app.post("/urls/:id/update", (req,res) =>{
   urlDatabase[req.params.id]["longURL"] = req.body.newURL;
   res.redirect("/urls");
 });
-
-
 
 app.post("/login", (req, res) => {
   
@@ -305,28 +304,28 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  //const hashedPassword = bcrypt.hashSync(password, 10);
+  const hashedPassword = bcrypt.hashSync(password, salt);
   if(!email || !password)
   {
     res.status(400);
     res.send("Please make sure your typed in email and password");
   } else {
-  if(findUserByEmail(users, email)){
-    res.status(400);
-    res.send("email already used");
-  } else {
-    randomid = generateRandomString();
-    users[randomid] = {
-      id: randomid,
-      email: email,
-      //password: hashedPassword
-      password: password
+    if(findUserByEmail(users, email)){
+      res.status(400);
+      res.send("email already used");
+    } else {
+      randomid = generateRandomString();
+      users[randomid] = {
+        id: randomid,
+        email: email,
+        password: hashedPassword
+        //password: password
     }
-    console.log(users);
-    //res.cookie('user_id', randomid);
-    req.session.user_id = randomid;
-    //console.log(users);
-    res.redirect("/urls");
+      console.log(users);
+      //res.cookie('user_id', randomid);
+      req.session.user_id = randomid;
+      //console.log(users);
+      res.redirect("/urls");
   }
 }
   
