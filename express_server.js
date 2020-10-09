@@ -7,7 +7,7 @@ const app = express();
 const salt = bcrypt.genSaltSync(10);
 const PORT = 8080; // default port 8080
 
-app.set("view engine", "ejs") // set ejs as the view engine
+app.set("view engine", "ejs"); // set ejs as the view engine
 
 //get the body-parser library
 const bodyParser = require("body-parser");
@@ -17,7 +17,7 @@ app.use(cookieParser());
 app.use(cookieSession({
   name: 'session',
   keys: ['testtinyapp', 'tinyapptest']
-}))
+}));
 /** 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -44,74 +44,12 @@ const users = {
     password: bcrypt.hashSync("dishwasher-funk", salt)
   }
 }
-/** 
-//function to generate a random shortURL
-function generateRandomString() {
 
-  const alphanum = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result ="";
-  for(let i = 0; i < 6; i++){
-    result += alphanum[Math.floor(Math.random()* 61)];
-  }
-
-  const result = Math.random().toString(36).substring(2,8);
-  return result;
-}
-
-
-const findUserByEmail = function(usersDb, email) {
-  
-  for (let key in usersDb){
-    if(usersDb[key]["email"] === email){
-      return true;
-    }
-  }
-  return null;
-}
-
-const validateUser = function(bcrypt, usersDb, email, password) {
-  //console.log("method"+password);
-  //console.log(bcrypt.hashSync("purple-monkey-dinosaur",10));
-  for (let key in usersDb){
-    console.log(usersDb[key]["password"]);
-    //console.log(usersDb.key);
-    //const result = bcrypt.compareSync(usersDb[key]["password"], password);
-    //if (usersDb[key]["email"] === email && result) {
-    if (usersDb[key]["email"] === email && usersDb[key]["password"] === password) {  
-      return key;
-    }
-  }
-  return null;
-}
-
-const getUserDB = function(user, urlDB) {
-  let urlUserDatabase = {};
-  for (let item in urlDB) {
-    //console.log(item);
-    if (urlDB[item]["userID"] === user) {
-    urlUserDatabase[item] = urlDB[item]["longURL"];
-    }
-  }
-  return urlUserDatabase;
-}
-*/
 app.get("/", (req, res) => {
-  //res.send("Hello!")
-  //const user = req.cookies["user_id"];
   const user = req.session.user_id;
   if(!user) {
-     //res.render("urls_login");
-     res.redirect("/login");
+    res.redirect("/login");
   } else {
-   // console.log(users);
-   // const username = users[user]["email"];
-    //console.log(req.cookies["username"]);
-    //const templateVars = {
-    //  username,
-    //  urls: urlDatabase
-   // };
-  //console.log(templateVars); 
-    //res.render("/urls", templateVars);
     res.redirect("/urls");
   }
 });
@@ -128,12 +66,10 @@ app.get("/hello", (req, res) => {
 
 //add a route for /urls
 app.get("/urls", (req, res) => {
-  //const user = req.cookies["user_id"];
+  
   const user = req.session.user_id;
   if(user) {
-    //console.log(user);
     const username = users[user]["email"];
-
     const urlUserDatabase = getUserDB (user, urlDatabase);
     console.log(urlUserDatabase);
     const templateVars = {
@@ -148,7 +84,6 @@ app.get("/urls", (req, res) => {
 
 //add a GET route to show the form, render the urls_new.ejs template
 app.get("/urls/new", (req, res) => {
-  //const user = req.cookies["user_id"];
   const user = req.session.user_id;
   if(user){
     const username = users[user]["email"];
@@ -163,7 +98,6 @@ app.get("/urls/new", (req, res) => {
 
 //add a route for /urls/:shortURL which will be used to render the tempalate urls_show.ejs
 app.get("/urls/:shortURL", (req, res) => {
-  //const user = req.cookies["user_id"];
   const user = req.session.user_id;
   if (user){
     const username = users[user]["email"];
@@ -180,19 +114,14 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //add a post
 app.post("/urls", (req, res) => {
-  console.log(req.body.longURL);
-  console.log(req.body["longURL"]);   // Log the POST request body to the console
-  //res.send();
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = {
     longURL: req.body.longURL,
-    //userID: req.cookies["user_id"]
     userID: req.session.user_id
   };
   console.log(urlDatabase);
   res.statusCode = 200;
   res.redirect(`/urls/${shortURL}`);
-  //res.send('OK');  // Respond with 'Ok' (we will replace this)
 });
 
 //redirect short URLs
@@ -207,14 +136,12 @@ app.get("/u/:shortURL", (req, res) => {
 
 //delete an url
 app.post("/urls/:shortURL/delete", (req,res) => {
-  //console.log(req.params.shortURL);
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
 
 //edit an url
 app.post("/urls/:id", (req, res) => {
-  //const user = req.cookies["user_id"];
   const user = req.session.user_id;
   const username = users[user]["email"];
   const templateVars = { 
