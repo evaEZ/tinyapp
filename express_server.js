@@ -71,7 +71,6 @@ app.get("/urls", (req, res) => {
   if(user) {
     const username = users[user]["email"];
     const urlUserDatabase = getUserDB (user, urlDatabase);
-    //console.log(urlUserDatabase);
     const templateVars = {
       username,
       urls: urlUserDatabase
@@ -100,13 +99,21 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const user = req.session.user_id;
   if (user){
-    const username = users[user]["email"];
-    const templateVars = { 
-      shortURL: req.params.shortURL, 
-      longURL: urlDatabase[req.params.shortURL]["longURL"],
-      username
-    };
-    res.render("urls_show", templateVars);
+    if (req.params.shortURL in urlDatabase) {
+      if (urlDatabase[req.params.shortURL]["userID"] === user) {
+        const username = users[user]["email"];
+        const templateVars = { 
+          shortURL: req.params.shortURL, 
+          longURL: urlDatabase[req.params.shortURL]["longURL"],
+          username
+        };
+        res.render("urls_show", templateVars);
+      } else {
+        res.send ("You don't have access to this url");
+      }
+    } else {
+      res.send ("The url doesn't exist");
+    }
   } else {
     res.send("Please sign in");
   }
@@ -119,7 +126,6 @@ app.post("/urls", (req, res) => {
     longURL: req.body.longURL,
     userID: req.session.user_id
   };
-  console.log(urlDatabase);
   res.statusCode = 200;
   res.redirect(`/urls/${shortURL}`);
 });
@@ -165,23 +171,12 @@ app.post("/login", (req, res) => {
   const key = validateUser(bcrypt, users, email, password);
 
   if (key){
-    //res.cookie('user_id',key);
     req.session.user_id = key;
     res.redirect("/urls");
   } else {
     res.status(403);
     res.send("Try Again");
   }
-  /*
-  console.log(req.cookie["username"]);
-  username = req.body.username;
-  const templateVars = {
-    username,
-    urls: urlDatabase
-  };
-  console.log(templateVars);
-   res.render("urls_index", templateVars);
-  */
 });
 
 app.get("/login", (req, res) => {
@@ -235,7 +230,6 @@ app.post("/register", (req, res) => {
         email: email,
         password: hashedPassword
     }
-      //console.log(users);
       req.session.user_id = randomid;
       res.redirect("/urls");
   }
