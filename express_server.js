@@ -71,7 +71,7 @@ app.get("/urls", (req, res) => {
   if(user) {
     const username = users[user]["email"];
     const urlUserDatabase = getUserDB (user, urlDatabase);
-    console.log(urlUserDatabase);
+    //console.log(urlUserDatabase);
     const templateVars = {
       username,
       urls: urlUserDatabase
@@ -126,7 +126,7 @@ app.post("/urls", (req, res) => {
 
 //redirect short URLs
 app.get("/u/:shortURL", (req, res) => {
-  if (req.params.shortURL){
+  if (req.params.shortURL in urlDatabase){
     const longURL = urlDatabase[req.params.shortURL]["longURL"];
     res.redirect(longURL);
   } else {
@@ -185,48 +185,36 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  //const user = req.cookies["user_id"];
   const user = req.session.user_id;
   if(user) {
     res.redirect("urls");
   } else {
-    //console.log(users);
     const username = users[user];
-    //console.log(req.cookies["username"]);
     const templateVars = {
       username,
       urls: urlDatabase
     };
-  //console.log(templateVars); 
-    //res.render("/urls", templateVars);
     res.render("urls_login",templateVars);
   }
 });
 
 app.post("/logout", (req, res) => {
-  //res.clearCookie('user_id');
   delete req.session.user_id;
   res.redirect("/urls");
 });
 
 app.get("/register", (req, res) => {
-  //const user = req.cookies["user_id"];
   const user = req.session.user_id;
    if(user){
       res.redirect("/urls");
    } else {
-    //res.redirect("/urls");
-    //console.log(user);
     const username = users[user];
     const templateVars = {
       username
      };
-    //console.log(templateVars);
     res.render("urls_register", templateVars);
    }
 });
-
-
 
 app.post("/register", (req, res) => {
   const email = req.body.email;
@@ -246,12 +234,9 @@ app.post("/register", (req, res) => {
         id: randomid,
         email: email,
         password: hashedPassword
-        //password: password
     }
-      console.log(users);
-      //res.cookie('user_id', randomid);
-      req.session.user_id = randomid;
       //console.log(users);
+      req.session.user_id = randomid;
       res.redirect("/urls");
   }
 }
