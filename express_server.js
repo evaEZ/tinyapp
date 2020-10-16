@@ -53,11 +53,6 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-//send HTML code in the response
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 //add a route for /urls
 app.get("/urls", (req, res) => {
   
